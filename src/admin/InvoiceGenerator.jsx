@@ -29,7 +29,7 @@ useEffect(() => {
       }
 
       const response = await fetch(
-        "http://localhost:5000/api/invoices/next-number",
+        `${import.meta.env.VITE_API_URL}/api/invoices/next-number`,
         {
           method: "GET",
           headers: {
@@ -92,7 +92,7 @@ useEffect(() => {
         setProductLoading(true);
         setProductError("");
 
-        const response = await fetch("http://localhost:5000/api/products");
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products`);
 
         if (!response.ok) {
           throw new Error("Failed to load products");
@@ -291,7 +291,7 @@ useEffect(() => {
     };
 
     const response = await fetch(
-      "http://localhost:5000/api/invoices",
+      `${import.meta.env.VITE_API_URL}/api/invoices`,
       {
         method: "POST",
         headers: {
@@ -336,7 +336,7 @@ const createNewInvoice = async () => {
     }
 
     const response = await fetch(
-      "http://localhost:5000/api/invoices/next-number",
+      `${import.meta.env.VITE_API_URL}/api/invoices/next-number`,
       {
         method: "GET",
         headers: {

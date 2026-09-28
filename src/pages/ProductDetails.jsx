@@ -14,13 +14,16 @@ function ProductDetails() {
 
   // Fetch product from MongoDB
   useEffect(() => {
+console.log("API URL:", import.meta.env.VITE_API_URL);
+console.log("Product ID:", id);
+
     const fetchProduct = async () => {
       try {
         setLoading(true);
         setError("");
 
         const response = await fetch(
-          `http://localhost:5000/api/products/${id}`
+          `${import.meta.env.VITE_API_URL}/api/products/${id}`
         );
 
         if (!response.ok) {
@@ -104,11 +107,11 @@ function ProductDetails() {
 
               <div className="bg-slate-100 rounded-2xl overflow-hidden">
 
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-[500px] object-cover"
-                />
+              <img
+  src={product.image || "/images/products/default-product.jpg"}
+  alt={product.name}
+  className="w-full h-[500px] object-cover"
+/>
 
               </div>
 

@@ -22,6 +22,8 @@ function Products() {
     "Accessories",
   ];
 
+  
+
   // Fetch products from backend
   useEffect(() => {
     const fetchProducts = async () => {
@@ -29,8 +31,10 @@ function Products() {
         setLoading(true);
         setError("");
 
+        
+
         const response = await fetch(
-          "http://localhost:5000/api/products"
+          `${import.meta.env.VITE_API_URL}/api/products`
         );
 
         if (!response.ok) {
@@ -204,10 +208,10 @@ function Products() {
                   {/* Image */}
                   <div className="bg-slate-100 h-56 overflow-hidden">
                     <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                    />
+  src={product.image || "/images/products/default-product.jpg"}
+  alt={product.name}
+  className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+/>
                   </div>
 
                   {/* Content */}

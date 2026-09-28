@@ -23,6 +23,14 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("GMAIL SMTP ERROR:", error);
+  } else {
+    console.log("GMAIL SMTP READY:", success);
+  }
+});
+
 // Create admin automatically
 router.post("/setup", async (req, res) => {
   try {
@@ -101,6 +109,10 @@ router.post("/login", async (req, res) => {
       expiresAt: Date.now() + 5 * 60 * 1000,
     };
 
+
+    console.log("OTP SEND START");
+console.log("GMAIL USER:", process.env.GMAIL_USER);
+console.log("ADMIN EMAIL:", admin.email);
     // Send OTP
     await transporter.sendMail({
       from: process.env.GMAIL_USER,
