@@ -117,18 +117,19 @@ router.post("/login", async (req, res) => {
 
     console.log("OTP SEND START");
 console.log("GMAIL USER:", process.env.GMAIL_USER);
-console.log("ADMIN EMAIL:", admin.email);
+console.log("ADMIN EMAIL:", process.env.ADMIN_EMAIL);
+
     // Send OTP
-    await transporter.sendMail({
-      from: process.env.GMAIL_USER,
-      to: admin.email,
-      subject: "PCHUB Admin Login OTP",
-      text: `Your PCHUB Admin Login OTP is: ${otp}
+   await transporter.sendMail({
+  from: process.env.GMAIL_USER,
+  to: process.env.ADMIN_EMAIL,
+  subject: "PCHUB Admin Login OTP",
+  text: `Your PCHUB Admin Login OTP is: ${otp}
 
 This OTP will expire in 5 minutes.
 
 If you did not request this OTP, please ignore this email.`,
-    });
+});
 
     res.json({
       success: true,
