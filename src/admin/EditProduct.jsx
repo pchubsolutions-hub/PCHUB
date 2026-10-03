@@ -20,8 +20,12 @@ function EditProduct() {
     operatingSystem: "",
   });
 
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [error, setError] = useState("");
 
   // Get existing product
@@ -29,15 +33,13 @@ function EditProduct() {
     const fetchProduct = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/products/${id}`
+          `${import.meta.env.VITE_API_URL}/api/products/${id}`
         );
 
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(
-            data.message || "Product not found"
-          );
+          throw new Error(data.message || "Product not found");
         }
 
         const product = data.product;
@@ -50,24 +52,19 @@ function EditProduct() {
           image: product.image || "",
           stock: product.stock || "",
 
-          processor:
-            product.specifications?.processor || "",
-
-          ram:
-            product.specifications?.ram || "",
-
-          storage:
-            product.specifications?.storage || "",
-
-          graphics:
-            product.specifications?.graphics || "",
-
-          display:
-            product.specifications?.display || "",
-
+          processor: product.specifications?.processor || "",
+          ram: product.specifications?.ram || "",
+          storage: product.specifications?.storage || "",
+          graphics: product.specifications?.graphics || "",
+          display: product.specifications?.display || "",
           operatingSystem:
             product.specifications?.operatingSystem || "",
         });
+
+        // Show existing image
+        if (product.image) {
+          setImagePreview(product.image);
+        }
       } catch (error) {
         console.error("Fetch Product Error:", error);
         setError(error.message);
@@ -89,6 +86,78 @@ function EditProduct() {
     }));
   };
 
+  // Image selection
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    // Check image type
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file.");
+      return;
+    }
+
+    // Maximum 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image size must be less than 5MB.");
+      return;
+    }
+
+    setError("");
+    setSelectedImage(file);
+
+    // Preview selected image
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+  };
+
+  // Upload image to Cloudinary
+  const uploadImage = async () => {
+    if (!selectedImage) {
+      return formData.image;
+    }
+
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset =
+      import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+    if (!cloudName || !uploadPreset) {
+      throw new Error(
+        "Cloudinary configuration is missing. Please check environment variables."
+      );
+    }
+
+    setUploadingImage(true);
+
+    try {
+      const uploadData = new FormData();
+
+      uploadData.append("file", selectedImage);
+      uploadData.append("upload_preset", uploadPreset);
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        {
+          method: "POST",
+          body: uploadData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error?.message || "Image upload failed"
+        );
+      }
+
+      return data.secure_url;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   // Update product
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -97,12 +166,15 @@ function EditProduct() {
     setError("");
 
     try {
+      // Upload new image only if user selected one
+      const imageUrl = await uploadImage();
+
       const productData = {
         name: formData.name,
         category: formData.category,
         description: formData.description,
         price: Number(formData.price),
-        image: formData.image,
+        image: imageUrl,
         stock: Number(formData.stock),
 
         specifications: {
@@ -115,23 +187,25 @@ function EditProduct() {
         },
       };
 
-     const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("adminToken");
 
-if (!token) {
-  throw new Error("Admin authentication required. Please login again.");
-}
+      if (!token) {
+        throw new Error(
+          "Admin authentication required. Please login again."
+        );
+      }
 
-const response = await fetch(
-  `http://localhost:5000/api/products/${id}`,
-  {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(productData),
-  }
-);
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/products/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(productData),
+        }
+      );
 
       const data = await response.json();
 
@@ -152,6 +226,7 @@ const response = await fetch(
       );
     } finally {
       setSaving(false);
+      setUploadingImage(false);
     }
   };
 
@@ -306,20 +381,45 @@ const response = await fetch(
             />
           </div>
 
-          {/* Image */}
+          {/* Image Upload */}
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Image Path
+              Product Image
             </label>
 
             <input
-              type="text"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              placeholder="/images/products/product.jpg"
-              className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="w-full border border-slate-300 rounded-lg px-4 py-3 bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
+
+            <p className="text-xs text-slate-500 mt-2">
+              Select a new image only if you want to replace the current image. Maximum 5MB.
+            </p>
+
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="mt-4">
+                <p className="text-sm font-semibold text-slate-700 mb-2">
+                  Image Preview
+                </p>
+
+                <div className="w-full h-52 border border-slate-200 rounded-lg overflow-hidden bg-slate-50">
+                  <img
+                    src={imagePreview}
+                    alt="Product Preview"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+
+                {selectedImage && (
+                  <p className="text-xs text-slate-500 mt-2">
+                    New image selected: {selectedImage.name}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Description */}
@@ -444,7 +544,11 @@ const response = await fetch(
             disabled={saving}
             className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-7 py-3 rounded-lg font-semibold transition"
           >
-            {saving ? "Saving..." : "Save Changes"}
+            {uploadingImage
+              ? "Uploading Image..."
+              : saving
+              ? "Saving..."
+              : "Save Changes"}
           </button>
 
           <button

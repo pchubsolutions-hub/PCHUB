@@ -19,7 +19,12 @@ function AddProduct() {
     operatingSystem: "",
   });
 
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -32,96 +37,196 @@ function AddProduct() {
     }));
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  // ==============================
+  // IMAGE SELECT
+  // ==============================
 
-  setLoading(true);
-  setMessage("");
-  setError("");
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
 
-  try {
-    // Get admin JWT token
-    const token = localStorage.getItem("adminToken");
-
-    if (!token) {
-      throw new Error("Admin authentication required. Please login again.");
+    if (!file) {
+      return;
     }
 
-    // Prepare product data
-    const productData = {
-      name: formData.name,
-      category: formData.category,
-      description: formData.description,
-      price: Number(formData.price),
-      image: formData.image,
-      stock: Number(formData.stock),
+    // Allow only image files
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file.");
+      return;
+    }
 
-      specifications: {
-        processor: formData.processor,
-        ram: formData.ram,
-        storage: formData.storage,
-        graphics: formData.graphics,
-        display: formData.display,
-        operatingSystem: formData.operatingSystem,
-      },
-    };
+    // Maximum 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image size must be less than 5MB.");
+      return;
+    }
 
-    // Send product to backend
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/products`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(productData),
+    setError("");
+
+    setSelectedImage(file);
+
+    // Preview image
+    const previewURL = URL.createObjectURL(file);
+
+    setImagePreview(previewURL);
+  };
+
+  // ==============================
+  // UPLOAD IMAGE TO CLOUDINARY
+  // ==============================
+
+  const uploadImage = async () => {
+    if (!selectedImage) {
+      return formData.image;
+    }
+
+    setUploadingImage(true);
+
+    try {
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+      const uploadPreset =
+        import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+      if (!cloudName || !uploadPreset) {
+        throw new Error(
+          "Cloudinary configuration is missing."
+        );
       }
-    );
 
-    const data = await response.json();
+      const imageData = new FormData();
 
-    if (!response.ok) {
-      throw new Error(
-        data.message || "Failed to create product"
+      imageData.append("file", selectedImage);
+      imageData.append("upload_preset", uploadPreset);
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        {
+          method: "POST",
+          body: imageData,
+        }
       );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error?.message || "Image upload failed."
+        );
+      }
+
+      return data.secure_url;
+
+    } catch (error) {
+      console.error("Cloudinary Upload Error:", error);
+      throw error;
+
+    } finally {
+      setUploadingImage(false);
     }
+  };
 
-    console.log("Product created:", data);
+  // ==============================
+  // SUBMIT PRODUCT
+  // ==============================
 
-    setMessage("Product added successfully!");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    // Reset form
-    setFormData({
-      name: "",
-      category: "Laptops",
-      description: "",
-      price: "",
-      image: "",
-      stock: "",
-      processor: "",
-      ram: "",
-      storage: "",
-      graphics: "",
-      display: "",
-      operatingSystem: "",
-    });
+    setLoading(true);
+    setMessage("");
+    setError("");
 
-    // Go to Manage Products
-    setTimeout(() => {
-      navigate("/admin/products");
-    }, 1200);
+    try {
+      // Get admin JWT token
+      const token = localStorage.getItem("adminToken");
 
-  } catch (error) {
-    console.error("Add Product Error:", error);
+      if (!token) {
+        throw new Error(
+          "Admin authentication required. Please login again."
+        );
+      }
 
-    setError(
-      error.message || "Something went wrong"
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+      // Upload image first
+      const imageURL = await uploadImage();
+
+      // Prepare product data
+      const productData = {
+        name: formData.name,
+        category: formData.category,
+        description: formData.description,
+        price: Number(formData.price),
+        image: imageURL,
+        stock: Number(formData.stock),
+
+        specifications: {
+          processor: formData.processor,
+          ram: formData.ram,
+          storage: formData.storage,
+          graphics: formData.graphics,
+          display: formData.display,
+          operatingSystem: formData.operatingSystem,
+        },
+      };
+
+      // Send product to backend
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/products`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(productData),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Failed to create product"
+        );
+      }
+
+      console.log("Product created:", data);
+
+      setMessage("Product added successfully!");
+
+      // Reset form
+      setFormData({
+        name: "",
+        category: "Laptops",
+        description: "",
+        price: "",
+        image: "",
+        stock: "",
+        processor: "",
+        ram: "",
+        storage: "",
+        graphics: "",
+        display: "",
+        operatingSystem: "",
+      });
+
+      setSelectedImage(null);
+      setImagePreview("");
+
+      // Go to Manage Products
+      setTimeout(() => {
+        navigate("/admin/products");
+      }, 1200);
+
+    } catch (error) {
+      console.error("Add Product Error:", error);
+
+      setError(
+        error.message || "Something went wrong"
+      );
+
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-10">
@@ -247,20 +352,44 @@ function AddProduct() {
             />
           </div>
 
-          {/* Image */}
+          {/* Image Upload */}
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Image Path
+              Product Image *
             </label>
 
             <input
-              type="text"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              placeholder="/images/products/gaming-laptop.jpg"
-              className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              required
+              className="w-full border border-slate-300 rounded-lg px-4 py-3 bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
+
+            <p className="text-xs text-slate-500 mt-2">
+              JPG, PNG, WEBP • Maximum 5MB
+            </p>
+
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="mt-4">
+                <p className="text-sm font-semibold text-slate-700 mb-2">
+                  Image Preview
+                </p>
+
+                <div className="w-48 h-48 border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                  <img
+                    src={imagePreview}
+                    alt="Product Preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                <p className="text-xs text-slate-500 mt-2">
+                  {selectedImage?.name}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Description */}
@@ -398,10 +527,14 @@ function AddProduct() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || uploadingImage}
             className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-7 py-3 rounded-lg font-semibold transition"
           >
-            {loading ? "Adding Product..." : "Add Product"}
+            {uploadingImage
+              ? "Uploading Image..."
+              : loading
+              ? "Adding Product..."
+              : "Add Product"}
           </button>
 
           <button
