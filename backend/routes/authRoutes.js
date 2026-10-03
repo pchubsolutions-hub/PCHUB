@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
 const Admin = require("../models/Admin");
 
@@ -9,34 +9,18 @@ const router = express.Router();
 
 let otpStore = {};
 
+// Resend
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 // Generate OTP
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Gmail transporter
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-  tls: {
-    family: 4,
-  },
-});
+// ==================================================
+// CREATE ADMIN
+// ==================================================
 
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("GMAIL SMTP ERROR:", error);
-  } else {
-    console.log("GMAIL SMTP READY:", success);
-  }
-});
-
-// Create admin automatically
 router.post("/setup", async (req, res) => {
   try {
     const existingAdmin = await Admin.findOne({
@@ -63,6 +47,7 @@ router.post("/setup", async (req, res) => {
     await admin.save();
 
     res.json({
+      success: true,
       message: "Admin account created successfully.",
     });
   } catch (error) {
@@ -74,9 +59,10 @@ router.post("/setup", async (req, res) => {
   }
 });
 
+// ==================================================
+// LOGIN
+// ==================================================
 
-
-// Login
 router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -87,6 +73,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    // Find admin
     const admin = await Admin.findOne({ username });
 
     if (!admin) {
@@ -95,6 +82,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    // Check password
     const passwordMatch = await bcrypt.compare(
       password,
       admin.password
@@ -109,27 +97,44 @@ router.post("/login", async (req, res) => {
     // Generate OTP
     const otp = generateOTP();
 
+    // Store OTP
     otpStore[username] = {
       otp,
       expiresAt: Date.now() + 5 * 60 * 1000,
     };
 
-
+    console.log("=================================");
     console.log("OTP SEND START");
-console.log("GMAIL USER:", process.env.GMAIL_USER);
-console.log("ADMIN EMAIL:", process.env.ADMIN_EMAIL);
+    console.log("ADMIN USERNAME:", username);
+    console.log("ADMIN EMAIL:", process.env.ADMIN_EMAIL);
+    console.log("=================================");
 
-    // Send OTP
-   await transporter.sendMail({
-  from: process.env.GMAIL_USER,
-  to: process.env.ADMIN_EMAIL,
-  subject: "PCHUB Admin Login OTP",
-  text: `Your PCHUB Admin Login OTP is: ${otp}
+    // ==================================================
+    // SEND OTP USING RESEND
+    // ==================================================
+
+    const { data, error } = await resend.emails.send({
+      from: "onboarding@resend.dev",
+      to: process.env.ADMIN_EMAIL,
+      subject: "PCHUB Admin Login OTP",
+      text: `Your PCHUB Admin Login OTP is: ${otp}
 
 This OTP will expire in 5 minutes.
 
 If you did not request this OTP, please ignore this email.`,
-});
+    });
+
+    // Resend error
+    if (error) {
+      console.error("RESEND EMAIL ERROR:", error);
+
+      return res.status(500).json({
+        message: "Unable to send OTP.",
+      });
+    }
+
+    console.log("OTP EMAIL SENT SUCCESSFULLY");
+    console.log("RESEND RESPONSE:", data);
 
     res.json({
       success: true,
@@ -145,10 +150,19 @@ If you did not request this OTP, please ignore this email.`,
   }
 });
 
-// Verify OTP
+// ==================================================
+// VERIFY OTP
+// ==================================================
+
 router.post("/verify-otp", async (req, res) => {
   try {
     const { username, otp } = req.body;
+
+    if (!username || !otp) {
+      return res.status(400).json({
+        message: "Username and OTP are required.",
+      });
+    }
 
     const storedOTP = otpStore[username];
 
@@ -158,6 +172,7 @@ router.post("/verify-otp", async (req, res) => {
       });
     }
 
+    // Check expiry
     if (Date.now() > storedOTP.expiresAt) {
       delete otpStore[username];
 
@@ -166,14 +181,17 @@ router.post("/verify-otp", async (req, res) => {
       });
     }
 
+    // Check OTP
     if (storedOTP.otp !== otp) {
       return res.status(400).json({
         message: "Invalid OTP.",
       });
     }
 
+    // Delete used OTP
     delete otpStore[username];
 
+    // Create JWT
     const token = jwt.sign(
       {
         username,
