@@ -1,7 +1,6 @@
 const express = require("express");
 const Product = require("../models/Product");
 const protectAdmin = require("../middleware/authMiddleware");
-const product = await Product.create(req.body);
 
 const router = express.Router();
 
