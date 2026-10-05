@@ -28,13 +28,7 @@ function EditInvoice() {
       try {
         const token = localStorage.getItem("adminToken");
 
-        //testing
 
-        console.log("EDIT INVOICE API URL:", import.meta.env.VITE_API_URL);
-console.log(
-  "EDIT INVOICE REQUEST:",
-  `${import.meta.env.VITE_API_URL}/api/invoices/${id}`
-);
 
 
         if (!token) {
