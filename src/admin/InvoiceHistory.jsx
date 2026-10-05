@@ -679,6 +679,18 @@ const handleDeleteConfirm = async () => {
         >
           Close
         </button>
+
+       <button
+  type="button"
+  onClick={() => {
+    handlePrint();
+    handleSaveInvoice();
+  }}
+  className="bg-blue-600 hover:bg-blue-700 text-white px-7 py-3 rounded-lg font-semibold transition shadow-md hover:shadow-lg"
+>
+  🖨️ Print / Save PDF
+</button>
+
       </div>
 
     </div>
