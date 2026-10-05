@@ -28,12 +28,21 @@ function EditInvoice() {
       try {
         const token = localStorage.getItem("adminToken");
 
+        //testing
+
+        console.log("EDIT INVOICE API URL:", import.meta.env.VITE_API_URL);
+console.log(
+  "EDIT INVOICE REQUEST:",
+  `${import.meta.env.VITE_API_URL}/api/invoices/${id}`
+);
+
+
         if (!token) {
           throw new Error("Admin authentication required.");
         }
 
         const response = await fetch(
-          `http://localhost:5000/api/invoices/${id}`,
+          `${import.meta.env.VITE_API_URL}/api/invoices/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -247,7 +256,7 @@ function EditInvoice() {
       setSaving(true);
 
       const response = await fetch(
-        `http://localhost:5000/api/invoices/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/invoices/${id}`,
         {
           method: "PUT",
           headers: {
