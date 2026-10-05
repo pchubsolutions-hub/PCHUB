@@ -96,16 +96,7 @@ const handleDeleteConfirm = async () => {
 
     console.log("3. Sending request...");
 
-//testing
-    console.log(
-  "API URL:",
-  import.meta.env.VITE_API_URL
-);
 
-console.log(
-  "Invoice API:",
-  `${import.meta.env.VITE_API_URL}/api/invoices`
-);
 
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}/api/invoices`,
