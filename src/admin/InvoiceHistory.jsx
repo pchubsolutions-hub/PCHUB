@@ -43,7 +43,7 @@ const handleDeleteConfirm = async () => {
  
 
     const response = await fetch(
-      `http://localhost:5000/api/invoices/${invoiceToDelete._id}`,
+      `${import.meta.env.VITE_API_URL}/api/invoices/${invoiceToDelete._id}`,
       {
         method: "DELETE",
         headers: {
@@ -91,10 +91,24 @@ const handleDeleteConfirm = async () => {
       throw new Error("Admin authentication required.");
     }
 
+
+
+
     console.log("3. Sending request...");
 
+//testing
+    console.log(
+  "API URL:",
+  import.meta.env.VITE_API_URL
+);
+
+console.log(
+  "Invoice API:",
+  `${import.meta.env.VITE_API_URL}/api/invoices`
+);
+
     const response = await fetch(
-      "http://localhost:5000/api/invoices",
+      `${import.meta.env.VITE_API_URL}/api/invoices`,
       {
         method: "GET",
         headers: {
