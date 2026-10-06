@@ -145,7 +145,7 @@ function Home() {
                 <div className="relative bg-slate-900 border border-slate-700 rounded-3xl p-12 md:p-16">
 
                   <img
-  src="public\Images\logo\pchub-logo.png"
+  src="/Images/logo/pchub-logo.png"
   alt="PCHUB Computers"
   className="w-full h-[420px] object-cover rounded-2xl"
 />

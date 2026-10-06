@@ -155,7 +155,7 @@ console.log("Product ID:", id);
               <div className="flex flex-wrap gap-4 mt-8">
 
                 <a
-                  href="https://wa.me/94112345678"
+                  href="https://wa.me/947516636548"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-green-600 hover:bg-green-700 text-white px-7 py-3.5 rounded-lg font-semibold transition"

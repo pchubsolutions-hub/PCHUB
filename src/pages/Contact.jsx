@@ -29,7 +29,7 @@ function Contact() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/inquiries",
+        `${import.meta.env.VITE_API_URL}/api/inquiries`,
         {
           method: "POST",
           headers: {
@@ -125,7 +125,7 @@ function Contact() {
                   </p>
 
                   <p className="font-semibold text-slate-900 mt-1">
-                    +94 77 123 4567
+                    +94 75 166 3654
                   </p>
                 </div>
 
@@ -135,7 +135,7 @@ function Contact() {
                   </p>
 
                   <p className="font-semibold text-slate-900 mt-1">
-                    info@pchub.lk
+                    pchubsolutions@gmail.com
                   </p>
                 </div>
 
@@ -145,7 +145,7 @@ function Contact() {
                   </p>
 
                   <p className="font-semibold text-slate-900 mt-1">
-                    Sri Lanka
+                    No:148, Uggalbada, Kalutara, Sri Lanka
                   </p>
                 </div>
 

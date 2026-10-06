@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
 
+import samsungLogo from "../assets/samsung.png";
+import msiLogo from "../assets/msi.png";
+import acerLogo from "../assets/acer.png";
+import asusLogo from "../assets/asus.png";
+import nvidiaLogo from "../assets/nvidia.png";
+;
+
 
 function InvoiceGenerator() {
 
@@ -493,450 +500,355 @@ useEffect(() => {
       )}
 
       {/* Main Invoice Card Container */}
-     <div
+<div
   id="invoice"
-  className="bg-white border border-slate-200 rounded-2xl p-6 md:p-10 print:p-2 print:border-0 print:rounded-none"
+  className="bg-white border border-slate-200 rounded-2xl p-6 md:p-10 print:p-2 print:border-0 print:rounded-none shadow-sm text-black"
 >
-        {/* ================= INVOICE HEADER ================= */}
-        <div className="flex flex-col md:flex-row justify-between items-start gap-6 border-b border-slate-200 pb-8">
-          <div>
-            <h2 className="text-3xl font-extrabold text-blue-600 tracking-tight">
-              PCHUB
-            </h2>
-            <p className="text-slate-600 font-medium text-sm mt-1">
-              Computer & Technology Solutions
-            </p>
-            <p className="text-xs text-slate-500 mt-0.5">Sri Lanka</p>
-          </div>
-
-          <div className="md:text-right flex flex-col items-start md:items-end">
-            <h3 className="text-2xl font-black text-slate-900 uppercase tracking-widest">
-              INVOICE
-            </h3>
-            <div className="mt-2 text-sm text-slate-600 space-y-1">
-              <p>
-                <span className="font-semibold text-slate-500">Invoice No:</span>{" "}
-                <span className="font-semibold text-slate-900 ml-2">
-    {invoice.invoiceNumber || "Generating..."}
-  </span>
-              </p>
-              <p>
-                <span className="font-semibold text-slate-500">Date:</span>{" "}
-                <span className="font-bold text-slate-900">{invoice.date}</span>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* ================= CUSTOMER INFO (FORM VIEW) ================= */}
-        <div className="mt-8 print:hidden">
-          <h2 className="text-xl font-bold text-slate-900 mb-4">
-            Customer Information
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Customer Name *
-              </label>
-              <input
-                type="text"
-                name="customerName"
-                value={invoice.customerName}
-                onChange={handleInvoiceChange}
-                placeholder="Customer name"
-                className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Phone Number
-              </label>
-              <input
-                type="text"
-                name="customerPhone"
-                value={invoice.customerPhone}
-                onChange={handleInvoiceChange}
-                placeholder="07XXXXXXXX"
-                className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                name="customerEmail"
-                value={invoice.customerEmail}
-                onChange={handleInvoiceChange}
-                placeholder="customer@email.com"
-                className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Address
-              </label>
-              <input
-                type="text"
-                name="customerAddress"
-                value={invoice.customerAddress}
-                onChange={handleInvoiceChange}
-                placeholder="Customer address"
-                className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* ================= CUSTOMER INFO (PRINT VIEW) ================= */}
-        <div className="hidden print:grid grid-cols-2 gap-6 my-6 p-4 bg-slate-50 border border-slate-200 rounded-xl">
-          <div>
-            <h4 className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-2">
-              Billed To
-            </h4>
-            <p className="font-bold text-slate-900 text-base">
-              {invoice.customerName || "Valued Customer"}
-            </p>
-            {invoice.customerAddress && (
-              <p className="text-sm text-slate-600 mt-0.5">
-                {invoice.customerAddress}
-              </p>
-            )}
-            {invoice.customerPhone && (
-              <p className="text-sm text-slate-600 mt-0.5">
-                Phone: {invoice.customerPhone}
-              </p>
-            )}
-            {invoice.customerEmail && (
-              <p className="text-sm text-slate-600 mt-0.5">
-                Email: {invoice.customerEmail}
-              </p>
-            )}
-          </div>
-
-          <div className="text-right">
-            <h4 className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-2">
-              Payment Status
-            </h4>
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-200 text-slate-800">
-              {invoice.paymentStatus}
-            </span>
-          </div>
-        </div>
-
-        {/* ================= PRODUCTS TABLE SECTION ================= */}
-        <div className="mt-8">
-          <div className="flex justify-between items-center mb-5 print:hidden">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900">
-                Products / Items
-              </h2>
-              <p className="text-sm text-slate-500 mt-1">
-                Select products from the PCHUB product database.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={addItem}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition"
-            >
-              + Add Item
-            </button>
-          </div>
-
-          {/* Form Input Table (Visible on Screen) */}
-          <div className="overflow-x-visible print:hidden">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-slate-100 text-left text-slate-700">
-                  <th className="p-3 text-sm font-semibold">Product Name</th>
-                  <th className="p-3 text-sm font-semibold w-24">Qty</th>
-                  <th className="p-3 text-sm font-semibold w-36">Unit Price</th>
-                  <th className="p-3 text-sm font-semibold w-28">Discount</th>
-                  <th className="p-3 text-sm font-semibold w-32">Warranty</th>
-                  <th className="p-3 text-sm font-semibold w-36 text-right">Total</th>
-                  <th className="p-3 w-16"></th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {items.map((item, index) => {
-                  const searchText = item.product.trim().toLowerCase();
-
-                  const suggestions =
-                    searchText.length > 0
-                      ? products
-                          .filter((product) =>
-                            product.name
-                              ?.toLowerCase()
-                              .includes(searchText)
-                          )
-                          .slice(0, 6)
-                      : [];
-
-                  return (
-                    <tr
-                      key={index}
-                      className="border-b border-slate-200"
-                    >
-                      {/* Product Search Input */}
-                      <td className="p-3 align-top">
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={item.product}
-                            onChange={(e) =>
-                              handleProductSearch(index, e.target.value)
-                            }
-                            onFocus={() => setActiveProductIndex(index)}
-                            placeholder="Search product..."
-                            className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500"
-                          />
-
-                          {/* Suggestions Popup */}
-                          {activeProductIndex === index &&
-                            suggestions.length > 0 && (
-                              <div className="absolute z-[100] left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-lg shadow-xl max-h-80 overflow-y-auto">
-                                {suggestions.map((product) => (
-                                  <button
-                                    type="button"
-                                    key={product._id}
-                                    onClick={() =>
-                                      selectProduct(index, product)
-                                    }
-                                    className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-slate-100 last:border-b-0"
-                                  >
-                                    <div className="font-semibold text-slate-900">
-                                      {product.name}
-                                    </div>
-
-                                    <div className="text-sm text-slate-500 mt-1">
-                                      {product.category} • LKR{" "}
-                                      {formatCurrency(product.price || 0)}
-                                      {product.stock !== undefined && (
-                                        <> • Stock: {product.stock}</>
-                                      )}
-                                    </div>
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-
-                          {/* No results */}
-                          {searchText.length > 0 &&
-                            !productLoading &&
-                            suggestions.length === 0 && (
-                              <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg p-3 text-slate-500 text-sm">
-                                No matching products found.
-                              </div>
-                            )}
-                        </div>
-                      </td>
-
-                      {/* Quantity */}
-                      <td className="p-3 align-top">
-                        <input
-                          type="number"
-                          name="quantity"
-                          value={item.quantity}
-                          min="1"
-                          onChange={(e) => handleItemChange(index, e)}
-                          className="w-20 border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500"
-                        />
-                      </td>
-
-                      {/* Unit Price */}
-                      <td className="p-3 align-top">
-                        <input
-                          type="number"
-                          name="unitPrice"
-                          value={item.unitPrice}
-                          min="0"
-                          onChange={(e) => handleItemChange(index, e)}
-                          className="w-32 border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500"
-                        />
-                      </td>
-
-                      {/* Discount */}
-                      <td className="p-3 align-top">
-                        <input
-                          type="number"
-                          name="discount"
-                          value={item.discount}
-                          min="0"
-                          onChange={(e) => handleItemChange(index, e)}
-                          placeholder="0"
-                          className="w-24 border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500"
-                        />
-                      </td>
-
-                      {/* Warranty */}
-                      <td className="p-3 align-top">
-                        <div className="flex items-center gap-1.5">
-                          <input
-                            type="number"
-                            name="warranty"
-                            value={item.warranty}
-                            min="0"
-                            onChange={(e) => handleItemChange(index, e)}
-                            placeholder="12"
-                            className="w-16 border border-slate-300 rounded-lg px-2 py-2 outline-none focus:border-blue-500 text-center"
-                          />
-                          <span className="text-xs text-slate-500">
-                            Mos
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Total */}
-                      <td className="p-3 align-top font-semibold text-right whitespace-nowrap text-slate-900 pt-4">
-                        LKR {formatCurrency(calculateItemTotal(item))}
-                      </td>
-
-                      {/* Remove Button */}
-                      <td className="p-3 align-top text-right pt-4">
-                        <button
-                          type="button"
-                          onClick={() => removeItem(index)}
-                          className="text-red-600 hover:text-red-700 font-semibold text-sm"
-                        >
-                          Remove
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Clean Printed Invoice Table (Print Only) */}
-          <div className="hidden print:block my-4">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b-2 border-slate-800 text-slate-900 text-xs uppercase tracking-wider">
-                  <th className="py-2 text-left">Product Name</th>
-                  <th className="py-2 text-center">Qty</th>
-                  <th className="py-2 text-right">Unit Price</th>
-                  <th className="py-2 text-right">Discount</th>
-                  <th className="py-2 text-center">Warranty</th>
-                  <th className="py-2 text-right">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 text-sm text-slate-800">
-                {items.map((item, idx) => (
-                  <tr key={idx}>
-                    <td className="py-3 pr-2 font-medium">{item.product || "-"}</td>
-                    <td className="py-3 px-2 text-center">{item.quantity}</td>
-                    <td className="py-3 px-2 text-right">
-                      LKR {formatCurrency(item.unitPrice || 0)}
-                    </td>
-                    <td className="py-3 px-2 text-right text-red-600">
-                      {item.discount > 0
-                        ? `- LKR ${formatCurrency(item.discount)}`
-                        : "0.00"}
-                    </td>
-                    <td className="py-3 px-2 text-center">
-                      {item.warranty ? `${item.warranty} Months` : "N/A"}
-                    </td>
-                    <td className="py-3 pl-2 text-right font-bold text-slate-900">
-                      LKR {formatCurrency(calculateItemTotal(item))}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* ================= TOTALS SUMMARY ================= */}
-        <div className="flex justify-end mt-6 border-t border-slate-200 pt-4">
-          <div className="w-full md:w-80 space-y-2">
-            <div className="flex justify-between text-slate-600 text-sm">
-              <span>Sub Total</span>
-              <span className="font-semibold text-slate-900">
-                LKR {formatCurrency(subtotal)}
-              </span>
-            </div>
-
-            <div className="flex justify-between text-red-600 text-sm">
-              <span>Discount</span>
-              <span className="font-semibold">
-                - LKR {formatCurrency(totalDiscount)}
-              </span>
-            </div>
-
-            <div className="border-t border-slate-300 pt-3 mt-2 flex justify-between text-lg font-black text-slate-900">
-              <span>Total Amount</span>
-              <span className="text-blue-600">
-                LKR {formatCurrency(total)}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* ================= PAYMENT STATUS (FORM INPUT) ================= */}
-        <div className="mt-8 print:hidden">
-          <label className="block text-sm font-semibold text-slate-700 mb-2">
-            Payment Status
-          </label>
-
-          <select
-            name="paymentStatus"
-            value={invoice.paymentStatus}
-            onChange={handleInvoiceChange}
-            className="w-full md:w-72 border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition"
-          >
-            <option value="Paid">Paid</option>
-            <option value="Pending">Pending</option>
-            <option value="Partially Paid">Partially Paid</option>
-          </select>
-        </div>
-
-        {/* ================= NOTES ================= */}
-        <div className="mt-8 print:hidden">
-          <label className="block text-sm font-semibold text-slate-700 mb-2">
-            Notes
-          </label>
-
-          <textarea
-            name="notes"
-            value={invoice.notes}
-            onChange={handleInvoiceChange}
-            rows="3"
-            placeholder="Additional notes..."
-            className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-blue-500 resize-none transition"
-          />
-        </div>
-
-        {/* Notes (Print View) */}
-        {invoice.notes && (
-          <div className="hidden print:block mt-6 pt-4 border-t border-slate-200">
-            <h4 className="font-bold text-xs uppercase tracking-wider text-slate-500">
-              Terms & Notes
-            </h4>
-            <p className="text-xs text-slate-600 mt-1 whitespace-pre-line">
-              {invoice.notes}
-            </p>
-          </div>
-        )}
-
-        {/* ================= FOOTER ================= */}
-        <div className="border-t border-slate-200 mt-10 pt-6 text-center">
-          <p className="font-bold text-slate-900 text-sm">
-            Thank you for choosing PCHUB.
-          </p>
-          <p className="text-xs text-slate-500 mt-1">
-            Computer & Technology Solutions
-          </p>
+  {/* ================= EXACT HEADER SECTION ================= */}
+  <div className="border-t-4 border-black pt-4 pb-6">
+    {/* Top Bar with Logo and Center Aligned Address */}
+    <div className="relative flex flex-col items-center justify-center min-h-[80px]">
+      {/* Left Logo / Icon Place */}
+      <div className="absolute left-0 top-0 flex items-center gap-2">
+        <div className="font-extrabold text-xl tracking-tighter flex items-center gap-1.5 text-black">
+          <span className="border-2 border-black p-1 rounded-sm text-xs">💻</span>
+          <span>PC HUB</span>
         </div>
       </div>
+
+      {/* Main Header Center Details */}
+      <div className="text-center mt-6 md:mt-0">
+        <h1 className="text-4xl md:text-5xl font-black tracking-wider text-black uppercase font-serif">
+          PC HUB
+        </h1>
+        <p className="text-sm font-bold text-black mt-1">
+          No:148, Uggalbada, Kalutara, Sri Lanka
+        </p>
+        <p className="text-xs font-semibold text-black mt-0.5">
+          Tel : 075 1663654 &nbsp;|&nbsp; Email : pchubsoution@gmail.com
+        </p>
+      </div>
+    </div>
+
+    {/* INVOICE Title */}
+    <div className="text-center my-6">
+      <h2 className="text-2xl md:text-3xl font-black tracking-widest text-black uppercase">
+        INVOICE
+      </h2>
+    </div>
+
+    {/* Invoice Details & Customer Info Header Row */}
+    <div className="grid grid-cols-2 justify-between items-start pt-2 text-sm font-bold text-black">
+      {/* Left Column: Customer Info */}
+      <div className="space-y-1">
+        <p>
+          INVOICE TO :{""}
+          <span className="font-normal    px-2 min-w-[200px]">
+            {invoice.customerName || ""}
+          </span>
+        </p>
+        {invoice.customerAddress && (
+          <p className="text-xs font-normal text-slate-700 pl-24">
+            {invoice.customerAddress}
+          </p>
+        )}
+        {invoice.customerPhone && (
+          <p className="text-xs font-normal text-slate-700 pl-24">
+            {invoice.customerPhone}
+          </p>
+        )}
+
+        {invoice.customerEmail && (
+          <p className="text-xs font-normal text-slate-700 pl-24">
+            {invoice.customerEmail}
+          </p>
+        )}
+      </div>
+
+      {/* Right Column: Date & Invoice No */}
+      <div className="text-right space-y-2">
+        <p>
+          Date :{" "}
+          <span className="font-normal  px-2 inline-block min-w-[150px]">
+            {invoice.date || ""}
+          </span>
+        </p>
+        <p>
+          Invoice No :{" "}
+          <span className="font-normal  px-2 inline-block min-w-[150px]">
+            {invoice.invoiceNumber || ""}
+          </span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  {/* ================= CUSTOMER INFO (FORM VIEW - WEB ONLY) ================= */}
+  <div className="mt-6 print:hidden bg-slate-50 p-4 rounded-xl border border-slate-200">
+    <h3 className="text-md font-bold text-slate-800 mb-3">
+      Edit Customer Details
+    </h3>
+    <div className="grid md:grid-cols-2 gap-4">
+      <input
+        type="text"
+        name="customerName"
+        value={invoice.customerName || ""}
+        onChange={handleInvoiceChange}
+        placeholder="Customer Name"
+        className="border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500"
+      />
+      <input
+        type="text"
+        name="customerPhone"
+        value={invoice.customerPhone || ""}
+        onChange={handleInvoiceChange}
+        placeholder="Phone Number"
+        className="border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500"
+      />
+      <input
+        type="email"
+        name="customerEmail"
+        value={invoice.customerEmail || ""}
+        onChange={handleInvoiceChange}
+        placeholder="Email Address"
+        className="border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500"
+      />
+      <input
+        type="text"
+        name="customerAddress"
+        value={invoice.customerAddress || ""}
+        onChange={handleInvoiceChange}
+        placeholder="Address"
+        className="border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500"
+      />
+    </div>
+  </div>
+
+  {/* ================= PRODUCTS TABLE SECTION ================= */}
+  <div className="mt-6 h-100">
+    <div className="flex justify-between items-center mb-4 print:hidden">
+      <h3 className="text-lg font-bold text-slate-900">Invoice Items</h3>
+      <button
+        type="button"
+        onClick={addItem}
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition"
+      >
+        + Add Item
+      </button>
+    </div>
+
+    {/* Form Input Table (Visible on Screen) */}
+    <div className="overflow-x-auto print:hidden h-100">
+      <table className="w-full border-collapse min-w-[700px]">
+        <thead>
+          <tr className="bg-slate-100 text-left text-slate-700">
+            <th className="p-3 text-sm font-semibold">Product Name</th>
+            <th className="p-3 text-sm font-semibold w-24">Qty</th>
+            <th className="p-3 text-sm font-semibold w-36">Unit Price</th>
+            <th className="p-3 text-sm font-semibold w-28">Discount</th>
+            <th className="p-3 text-sm font-semibold w-32">Warranty</th>
+            <th className="p-3 text-sm font-semibold w-36 text-right">Total</th>
+            <th className="p-3 w-16"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item, index) => {
+            const searchText = (item.product || "").trim().toLowerCase();
+            const suggestions =
+              searchText.length > 0
+                ? products
+                    .filter((product) =>
+                      product.name?.toLowerCase().includes(searchText)
+                    )
+                    .slice(0, 6)
+                : [];
+
+            return (
+              <tr key={index} className="border-b border-slate-200">
+                <td className="p-3 align-top">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={item.product || ""}
+                      onChange={(e) =>
+                        handleProductSearch(index, e.target.value)
+                      }
+                      onFocus={() => setActiveProductIndex(index)}
+                      placeholder="Search product..."
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500"
+                    />
+
+                    {activeProductIndex === index &&
+                      suggestions.length > 0 && (
+                        <div className="absolute z-[100] left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                          {suggestions.map((product) => (
+                            <button
+                              type="button"
+                              key={product._id}
+                              onClick={() => selectProduct(index, product)}
+                              className="w-full text-left px-4 py-2 hover:bg-blue-50 border-b border-slate-100 text-sm"
+                            >
+                              <div className="font-semibold text-slate-900">
+                                {product.name}
+                              </div>
+                              <div className="text-xs text-slate-500">
+                                LKR {formatCurrency(product.price || 0)}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                  </div>
+                </td>
+                <td className="p-3 align-top">
+                  <input
+                    type="number"
+                    name="quantity"
+                    value={item.quantity}
+                    min="1"
+                    onChange={(e) => handleItemChange(index, e)}
+                    className="w-20 border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none"
+                  />
+                </td>
+                <td className="p-3 align-top">
+                  <input
+                    type="number"
+                    name="unitPrice"
+                    value={item.unitPrice}
+                    min="0"
+                    onChange={(e) => handleItemChange(index, e)}
+                    className="w-32 border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none"
+                  />
+                </td>
+                <td className="p-3 align-top">
+                  <input
+                    type="number"
+                    name="discount"
+                    value={item.discount}
+                    min="0"
+                    onChange={(e) => handleItemChange(index, e)}
+                    className="w-24 border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none"
+                  />
+                </td>
+                <td className="p-3 align-top">
+                  <input
+                    type="number"
+                    name="warranty"
+                    value={item.warranty || ""}
+                    onChange={(e) => handleItemChange(index, e)}
+                    placeholder="12"
+                    className="w-16 border border-slate-300 rounded-lg px-2 py-2 text-sm outline-none text-center"
+                  />
+                </td>
+                <td className="p-3 align-top font-semibold text-right text-slate-900 pt-4 text-sm">
+                  LKR {formatCurrency(calculateItemTotal(item))}
+                </td>
+                <td className="p-3 align-top text-right pt-4">
+                  <button
+                    type="button"
+                    onClick={() => removeItem(index)}
+                    className="text-red-600 hover:text-red-700 text-sm font-semibold"
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+
+    {/* Printed Invoice Table (Clean Print View) */}
+    <div className="hidden print:block my-4">
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="border-y-2 border-black text-black text-xs uppercase font-bold">
+            <th className="py-2 text-left">Item Description</th>
+            <th className="py-2 text-center">Qty</th>
+            <th className="py-2 text-right">Unit Price</th>
+            <th className="py-2 text-right">Discount</th>
+            <th className="py-2 text-center">Warranty</th>
+            <th className="py-2 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-200 text-sm text-black">
+          {items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-2.5 pr-2 font-medium">{item.product || "-"}</td>
+              <td className="py-2.5 px-2 text-center">{item.quantity}</td>
+              <td className="py-2.5 px-2 text-right">
+                {formatCurrency(item.unitPrice || 0)}
+              </td>
+              <td className="py-2.5 px-2 text-right">
+                {item.discount > 0 ? formatCurrency(item.discount) : "-"}
+              </td>
+              <td className="py-2.5 px-2 text-center">
+                {item.warranty ? `${item.warranty} Mos` : "-"}
+              </td>
+              <td className="py-2.5 pl-2 text-right font-bold">
+                LKR {formatCurrency(calculateItemTotal(item))}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {/* ================= TOTALS SUMMARY ================= */}
+  <div className="flex justify-end mt-6 border-t border-slate-200 pt-4">
+    <div className="w-full md:w-72 space-y-2 text-sm text-black">
+      <div className="flex justify-between">
+        <span>Sub Total</span>
+        <span className="font-semibold">LKR {formatCurrency(subtotal)}</span>
+      </div>
+      {totalDiscount > 0 && (
+        <div className="flex justify-between text-red-600">
+          <span>Discount</span>
+          <span className="font-semibold">
+            - LKR {formatCurrency(totalDiscount)}
+          </span>
+        </div>
+      )}
+      <div className="border-t-2 border-black pt-2 mt-2 flex justify-between font-black text-base">
+        <span>TOTAL</span>
+        <span>LKR {formatCurrency(total)}</span>
+      </div>
+    </div>
+  </div>
+
+  {/* ================= EXACT FOOTER WITH BRAND LOGOS ================= */}
+  <div className="mt-12 pt-6 border-t border-slate-200">
+    <div className="flex items-center justify-between gap-4 max-w-2xl mx-auto px-4 opacity-90 grayscale hover:grayscale-0 transition-all">
+      <img
+        src={samsungLogo}
+        alt="Samsung"
+        className="h-6 md:h-8 object-contain"
+      />
+      <img
+        src={msiLogo}
+        alt="MSI"
+        className="h-6 md:h-8 object-contain"
+      />
+      <img
+        src={acerLogo}
+        alt="Acer"
+        className="h-6 md:h-8 object-contain"
+      />
+      <img
+        src={asusLogo}
+        alt="Asus"
+        className="h-6 md:h-8 object-contain"
+      />
+      <img
+        src={nvidiaLogo}
+        alt="Nvidia"
+        className="h-6 md:h-8 object-contain"
+      />
+    </div>
+  </div>
+</div>
 
       {/* ================= BUTTONS ================= */}
       <div className="mt-8 flex flex-wrap gap-4 print:hidden">
@@ -968,4 +880,4 @@ useEffect(() => {
 
 }
 
-export default InvoiceGenerator;
+export default InvoiceGenerator; 

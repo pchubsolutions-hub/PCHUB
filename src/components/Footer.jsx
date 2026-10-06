@@ -58,11 +58,11 @@ function Footer() {
 
             <div className="space-y-3 text-gray-400">
 
-              <p>📞 +94 XX XXX XXXX</p>
+              <p>📞 +94 75 166 3654</p>
 
-              <p>✉ info@pchub.lk</p>
+              <p>✉ pchubsolutions@gmail.com</p>
 
-              <p>📍 Sri Lanka</p>
+              <p>📍 No:148, Uggalbada, Kalutara, Sri Lanka</p>
 
             </div>
           </div>

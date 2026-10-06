@@ -21,6 +21,13 @@ const handleView = (invoice) => {
   setShowViewModal(true);
 };
 
+const handlePrint = () => {
+  window.print();
+};
+
+
+
+
 const handleDeleteClick = (invoice) => {
   setInvoiceToDelete(invoice);
   setShowDeleteModal(true);
@@ -170,7 +177,50 @@ const handleDeleteConfirm = async () => {
     return new Date(date).toLocaleDateString("en-GB");
   };
 
-  return (
+  
+
+return (
+  <>
+    <style>{`
+      @media print {
+        body * {
+          visibility: hidden !important;
+        }
+
+        .print-backdrop,
+        .print-backdrop * {
+          visibility: visible !important;
+        }
+
+        .print-backdrop {
+          position: absolute !important;
+          inset: 0 !important;
+          background: white !important;
+          padding: 0 !important;
+          display: block !important;
+        }
+
+        .print-invoice {
+          position: relative !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          max-height: none !important;
+          overflow: visible !important;
+          box-shadow: none !important;
+          border-radius: 0 !important;
+        }
+
+        .no-print {
+          display: none !important;
+        }
+
+        @page {
+          size: A4;
+          margin: 3mm;
+        }
+      }
+    `}</style>
+
     <div className="p-6 md:p-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
@@ -434,12 +484,42 @@ const handleDeleteConfirm = async () => {
 )}
 
 {showViewModal && selectedInvoice && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6">
-    <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-xl">
+  <div className="print-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6">
+<div className="print-invoice bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-xl">
+      
+  
       
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b">
+
+      {/* Print Only Invoice Header */}
+<div className="print-only-header">
+  <div className="text-center pb-4 mb-4">
+
+  
+
+    <h1 className="text-2xl font-bold text-slate-900">
+      PCHUB
+    </h1>
+
+    <p className="text-sm text-slate-600">
+      Computer Sales & Services
+    </p>
+
+    <p className="text-sm text-slate-600 mt-1">
+      Kalutara, Sri Lanka
+    </p>
+
+    <p className="text-sm text-slate-600">
+      Tel: +94 XX XXX XXXX
+    </p>
+
+  </div>
+</div>
+
         <div>
+
+          
           <h2 className="text-xl font-bold text-slate-900">
             Invoice Details
           </h2>
@@ -449,100 +529,100 @@ const handleDeleteConfirm = async () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            setShowViewModal(false);
-            setSelectedInvoice(null);
-          }}
-          className="text-slate-500 hover:text-slate-900 text-2xl"
-        >
-          ×
-        </button>
+
       </div>
+
+
 
       <div className="p-6 space-y-6">
 
-        {/* Customer */}
-        <div>
-          <h3 className="font-semibold text-slate-900 mb-3">
-            Customer Details
-          </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 rounded-xl p-4">
-            <div>
-              <p className="text-xs text-slate-500">
-                Name
-              </p>
-              <p className="font-medium">
-                {selectedInvoice.customerName}
-              </p>
-            </div>
 
-            <div>
-              <p className="text-xs text-slate-500">
-                Phone
-              </p>
-              <p className="font-medium">
-                {selectedInvoice.customerPhone || "-"}
-              </p>
-            </div>
+        {/* Customer & Invoice Information Wrapper */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:grid-cols-2">
 
-            <div>
-              <p className="text-xs text-slate-500">
-                Email
-              </p>
-              <p className="font-medium">
-                {selectedInvoice.customerEmail || "-"}
-              </p>
-            </div>
+  {/* Left Side: Customer Details */}
+  <div>
+    <h3 className="font-semibold text-slate-900 mb-3">
+      Customer Details
+    </h3>
 
-            <div>
-              <p className="text-xs text-slate-500">
-                Address
-              </p>
-              <p className="font-medium">
-                {selectedInvoice.customerAddress || "-"}
-              </p>
-            </div>
-          </div>
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 rounded-xl p-4 h-[calc(100%-2rem)]">
+      <div>
+        <p className="text-xs text-slate-500">
+          Name
+        </p>
+        <p className="font-medium">
+          {selectedInvoice.customerName}
+        </p>
+      </div>
 
-        {/* Invoice Information */}
-        <div>
-          <h3 className="font-semibold text-slate-900 mb-3">
-            Invoice Information
-          </h3>
+      <div>
+        <p className="text-xs text-slate-500">
+          Phone
+        </p>
+        <p className="font-medium">
+          {selectedInvoice.customerPhone || "-"}
+        </p>
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-slate-50 rounded-xl p-4">
-              <p className="text-xs text-slate-500">
-                Invoice Number
-              </p>
-              <p className="font-semibold">
-                {selectedInvoice.invoiceNumber}
-              </p>
-            </div>
+      <div>
+        <p className="text-xs text-slate-500">
+          Email
+        </p>
+        <p className="font-medium">
+          {selectedInvoice.customerEmail || "-"}
+        </p>
+      </div>
 
-            <div className="bg-slate-50 rounded-xl p-4">
-              <p className="text-xs text-slate-500">
-                Date
-              </p>
-              <p className="font-semibold">
-                {formatDate(selectedInvoice.date)}
-              </p>
-            </div>
+      <div>
+        <p className="text-xs text-slate-500">
+          Address
+        </p>
+        <p className="font-medium">
+          {selectedInvoice.customerAddress || "-"}
+        </p>
+      </div>
+    </div>
+  </div>
 
-            <div className="bg-slate-50 rounded-xl p-4">
-              <p className="text-xs text-slate-500">
-                Payment Status
-              </p>
-              <p className="font-semibold">
-                {selectedInvoice.paymentStatus}
-              </p>
-            </div>
-          </div>
-        </div>
+  {/* Right Side: Invoice Information */}
+  <div>
+    <h3 className="font-semibold text-slate-900 mb-3">
+      Invoice Information
+    </h3>
+
+    <div className="grid grid-cols-1 gap-3 bg-slate-50 rounded-xl p-4">
+      <div>
+        <p className="text-xs text-slate-500">
+          Invoice Number
+        </p>
+        <p className="font-semibold text-slate-900">
+          {selectedInvoice.invoiceNumber}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-xs text-slate-500">
+          Date
+        </p>
+        <p className="font-semibold text-slate-900">
+          {formatDate(selectedInvoice.date)}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-xs text-slate-500">
+          Payment Status
+        </p>
+        <p className="font-semibold text-slate-900">
+          {selectedInvoice.paymentStatus}
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
 
         {/* Products */}
         <div>
@@ -668,36 +748,35 @@ const handleDeleteConfirm = async () => {
 
       </div>
 
-      <div className="border-t p-5 flex justify-end">
-        <button
-          type="button"
-          onClick={() => {
-            setShowViewModal(false);
-            setSelectedInvoice(null);
-          }}
-          className="px-5 py-2.5 bg-slate-900 text-white rounded-lg hover:bg-slate-800"
-        >
-          Close
-        </button>
+      <div className="no-print border-t p-5 flex justify-end gap-3">
+  
+  <button
+    type="button"
+    onClick={handlePrint}
+    className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+  >
+    Print Invoice
+  </button>
 
-       <button
-  type="button"
-  onClick={() => {
-    handlePrint();
-    handleSaveInvoice();
-  }}
-  className="bg-blue-600 hover:bg-blue-700 text-white px-7 py-3 rounded-lg font-semibold transition shadow-md hover:shadow-lg"
->
-  🖨️ Print / Save PDF
-</button>
+  <button
+    type="button"
+    onClick={() => {
+      setShowViewModal(false);
+      setSelectedInvoice(null);
+    }}
+    className="px-5 py-2.5 bg-slate-900 text-white rounded-lg hover:bg-slate-800"
+  >
+    Close
+  </button>
 
-      </div>
+</div>
 
     </div>
   </div>
 )}
 
     </div>
+    </>
   );
 }
 
